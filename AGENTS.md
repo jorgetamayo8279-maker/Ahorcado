@@ -5,11 +5,25 @@ Aplicación móvil. Priorizar patrones mobile-first, rendimiento y compatibilida
 ## Tecnología
 
 - React Native.
-- Expo.
+- Expo SDK 57; verificar siempre la versión actual en package.json.
 - JavaScript.
 - React Navigation con Native Stack.
 - StyleSheet de React Native.
-- AsyncStorage se incorporará posteriormente para persistencia, previa autorización para instalar la dependencia.
+- AsyncStorage implementado para persistir estadísticas, ranking y configuración.
+- expo-audio para sonidos y expo-haptics para feedback háptico, según las preferencias del jugador.
+- expo-splash-screen para el splash nativo y expo-asset instalado y configurado como plugin para los assets.
+
+## Estado actual y criterios de mantenimiento
+
+- La ejecución y la presentación visual inicial han sido validadas en Expo Go por el usuario. Esto no sustituye las pruebas del splash nativo en un build instalable.
+- CategoriaScreen.js ofrece las cuatro categorías del banco y Aleatoria, que envía el valor `aleatoria` al flujo existente, además de Fácil, Medio y Difícil.
+- CategoriaScreen.js consulta leerRanking() al recuperar el foco y muestra el mejor puntaje disponible del jugador por categoría; Aleatoria muestra el mejor general. Admite puntajes negativos y muestra «Sin registros» cuando corresponde.
+- El ranking persistido conserva el Top 10 global; los mejores puntajes por categoría se calculan solo entre esos registros, no sobre un historial completo.
+- Estadísticas y Top 10 están implementados. Configuración permite cambiar sonido, vibración y tema claro/oscuro, y borrar estadísticas y ranking con confirmación.
+- Los sonidos de acierto, error, victoria y derrota se encuentran en assets/sounds/ y se reproducen mediante expo-audio.
+- La identidad visual utiliza los iconos y splash existentes en assets/. El splash nativo se configura en app.json con expo-splash-screen.
+- App.js muestra una presentación visual de 1,2 segundos con assets/splash-icon.png antes de AppNavigator, manteniendo ThemeProvider activo. No reemplaza el splash nativo ni constituye una ruta de navegación.
+- FooterAutor.js muestra «Desarrollado por Jorge Tamayo» en Inicio, Instrucciones, Estadísticas y Configuración; no añadirlo a Juego ni a ModalResultado.
 
 ## Arquitectura obligatoria
 
@@ -31,6 +45,7 @@ src/components/
   Teclado.js
   Marcador.js
   ModalResultado.js
+  FooterAutor.js
 
 src/hooks/
   useJuego.js
@@ -43,6 +58,7 @@ src/storage/
 
 src/theme/
   colors.js
+  ThemeContext.js
 ```
 
 ## Reglas de arquitectura
@@ -58,10 +74,11 @@ src/theme/
 - palabras.js contiene el banco de palabras.
 - almacenamiento.js concentra la persistencia.
 - colors.js concentra colores y temas.
+- ThemeContext.js mantiene el tema claro/oscuro y expone ThemeProvider, useTheme y useThemedStyles. Reutilizar estos mecanismos y las paletas existentes.
 - JuegoScreen.js orquesta la partida, pero no debe contener toda la lógica.
 - Los componentes visuales deben permanecer separados y reutilizables.
-- Resultado se implementará mediante ModalResultado.js dentro del flujo de Juego, sin una pantalla independiente.
-- Splash se gestiona mediante Expo/app.json y assets, no como un Screen.js.
+- Resultado se implementa mediante ModalResultado.js dentro del flujo de Juego, sin una pantalla independiente.
+- El splash nativo se gestiona mediante Expo/app.json y assets, no como un Screen.js. Conservar la presentación visual complementaria de App.js y no eliminar la configuración nativa al ajustarla.
 
 ## Dependencias y forma de trabajo
 
