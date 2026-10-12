@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,8 @@ import {
 
 import { useThemedStyles } from '../theme/ThemeContext';
 import { categorias, niveles } from '../data/palabras';
+import { useFocusEffect } from '@react-navigation/native';
+import { leerRanking } from '../storage/almacenamiento';
 
 const opcionesCategorias = [
   ...categorias,
@@ -18,6 +20,26 @@ const opcionesCategorias = [
 export default function CategoriaScreen({ navigation, route }) {
   const styles = useThemedStyles(crearEstilos);
   const jugador = route?.params?.jugador || 'Jugador';
+  const [ranking, setRanking] = useState([]);
+
+  useFocusEffect(useCallback(() => {
+    let activo = true;
+    setRanking([]);
+    async function cargarRanking() {
+      try {
+        const registros = await leerRanking();
+        if (activo) setRanking(registros);
+      } catch {
+        if (activo) setRanking([]);
+      }
+    }
+    cargarRanking();
+    return () => { activo = false; };
+  }, [jugador]));
+
+  const registrosJugador = ranking.filter(
+    (registro) => registro.nombre.trim() === jugador.trim()
+  );
 
   const [categoriaSeleccionada, setCategoriaSeleccionada] =
     useState(null);
@@ -65,6 +87,12 @@ export default function CategoriaScreen({ navigation, route }) {
         {opcionesCategorias.map((categoria) => {
           const seleccionada =
             categoriaSeleccionada === categoria.id;
+          const mejorPuntaje = registrosJugador
+            .filter((registro) => categoria.id === 'aleatoria'
+              || registro.categoria.trim() === categoria.nombre)
+            .reduce((mejor, registro) => (
+              mejor === null ? registro.puntaje : Math.max(mejor, registro.puntaje)
+            ), null);
 
           return (
             <TouchableOpacity
@@ -91,6 +119,16 @@ export default function CategoriaScreen({ navigation, route }) {
                 ]}
               >
                 {categoria.nombre}
+              </Text>
+
+              <Text
+                style={[
+                  styles.mejorPuntaje,
+                  seleccionada && styles.descripcionSeleccionada,
+                ]}
+              >
+                {mejorPuntaje === null ? 'Sin registros'
+                  : `${categoria.id === 'aleatoria' ? 'Mejor general' : 'Mejor puntaje'}: ${mejorPuntaje}`}
               </Text>
 
               {seleccionada && (
@@ -269,6 +307,13 @@ const crearEstilos = (colors) => StyleSheet.create({
 
   textoSeleccionado: {
     color: colors.onButton,
+  },
+
+  mejorPuntaje: {
+    color: colors.textSecondary,
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 6,
   },
 
   marcaSeleccion: {
