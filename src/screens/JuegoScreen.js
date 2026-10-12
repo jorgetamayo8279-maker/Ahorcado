@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { View, Text, Pressable, ScrollView, StyleSheet, BackHandler, Alert, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
@@ -9,6 +9,7 @@ import Teclado from '../components/Teclado';
 import Marcador from '../components/Marcador';
 import ModalResultado from '../components/ModalResultado';
 import { obtenerCategoriaPorId, niveles } from '../data/palabras';
+import { registrarResultadoPartida } from '../storage/almacenamiento';
 import colors from '../theme/colors';
 
 export default function JuegoScreen({ navigation, route }) {
@@ -60,6 +61,22 @@ function Partida({ navigation, jugador, categoria, nivel }) {
   const pistaBloqueada = !jugando || pistasDisponibles <= 0;
   const nombreCategoria = obtenerCategoriaPorId(categoriaPartida)?.nombre;
   const nombreNivel = niveles.find((opcion) => opcion.id === nivel)?.nombre;
+  const resultadoIntentado = useRef(null);
+
+  useEffect(() => {
+    if (!terminado || resultadoIntentado.current !== null) return;
+    // Esta instancia de Partida vive una sola partida; volver a selección la desmonta.
+    // Marca el intento antes de iniciar la escritura, incluso si esta falla.
+    resultadoIntentado.current = {
+      nombre: jugador,
+      puntaje,
+      categoria: nombreCategoria,
+      nivel: nombreNivel,
+      estado,
+      fecha: new Date().toISOString(),
+    };
+    void registrarResultadoPartida(resultadoIntentado.current);
+  }, [terminado, jugador, puntaje, nombreCategoria, nombreNivel, estado]);
 
   useFocusEffect(useCallback(() => {
     if (Platform.OS !== 'android' || !jugando) return undefined;

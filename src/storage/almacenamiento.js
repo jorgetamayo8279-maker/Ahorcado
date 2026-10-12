@@ -20,6 +20,14 @@ export const CONFIGURACION_POR_DEFECTO = Object.freeze({
   tema: 'claro',
 });
 
+// Serializa cambios de estadísticas/ranking, incluido el borrado desde configuración.
+let operacionesResultados = Promise.resolve(true);
+
+function encolarResultado(operacion) {
+  operacionesResultados = operacionesResultados.then(operacion).catch(() => false);
+  return operacionesResultados;
+}
+
 function esObjeto(datos) {
   return datos !== null && typeof datos === 'object' && !Array.isArray(datos);
 }
@@ -70,8 +78,17 @@ export async function guardarDatos(clave, datos) {
 export async function leerDatos(clave, valorPorDefecto = null) {
   try {
     if (!textoValido(clave)) return valorPorDefecto;
-    const guardados = await AsyncStorage.getItem(clave);
-    if (typeof guardados !== 'string') return valorPorDefecto;
+    return await leerDatosParaResultado(clave, valorPorDefecto);
+  } catch {
+    return valorPorDefecto;
+  }
+}
+
+async function leerDatosParaResultado(clave, valorPorDefecto) {
+  // Un fallo de lectura debe abortar el registro, no sobrescribir datos con ceros.
+  const guardados = await AsyncStorage.getItem(clave);
+  if (typeof guardados !== 'string') return valorPorDefecto;
+  try {
     return JSON.parse(guardados) ?? valorPorDefecto;
   } catch {
     return valorPorDefecto;
@@ -88,22 +105,65 @@ async function guardarValidado(clave, datos, validar) {
 }
 
 export async function leerEstadisticas() {
+  await operacionesResultados;
   const porDefecto = { ...ESTADISTICAS_POR_DEFECTO };
   const datos = await leerDatos(CLAVES.estadisticas, porDefecto);
   return estadisticasValidas(datos) ? datos : porDefecto;
 }
 
 export function guardarEstadisticas(estadisticas) {
-  return guardarValidado(CLAVES.estadisticas, estadisticas, estadisticasValidas);
+  return encolarResultado(() => guardarValidado(CLAVES.estadisticas, estadisticas, estadisticasValidas));
 }
 
 export async function leerRanking() {
+  await operacionesResultados;
   const datos = await leerDatos(CLAVES.ranking, []);
   return rankingValido(datos) ? datos : [];
 }
 
 export function guardarRanking(ranking) {
-  return guardarValidado(CLAVES.ranking, ranking, rankingValido);
+  return encolarResultado(() => guardarValidado(CLAVES.ranking, ranking, rankingValido));
+}
+
+export async function registrarResultadoPartida(resultado) {
+  try {
+    if (!esObjeto(resultado)) return false;
+    const { nombre, puntaje, categoria, nivel, estado, fecha } = resultado;
+    const registro = { nombre, puntaje, categoria, nivel, fecha };
+    if ((estado !== 'ganado' && estado !== 'perdido') || !rankingValido([registro])
+      || typeof fecha !== 'string' || new Date(fecha).toISOString() !== fecha) return false;
+    registro.nombre = nombre.trim();
+    registro.categoria = categoria.trim();
+    registro.nivel = nivel.trim();
+
+    return await encolarResultado(async () => {
+      const [datos, registros] = await Promise.all([
+        leerDatosParaResultado(CLAVES.estadisticas, { ...ESTADISTICAS_POR_DEFECTO }),
+        leerDatosParaResultado(CLAVES.ranking, []),
+      ]);
+      const actuales = estadisticasValidas(datos) ? datos : ESTADISTICAS_POR_DEFECTO;
+      const ranking = rankingValido(registros) ? registros : [];
+      const ganado = estado === 'ganado';
+      const rachaActual = ganado ? actuales.rachaActual + 1 : 0;
+      const estadisticas = {
+        jugadas: actuales.jugadas + 1,
+        ganadas: actuales.ganadas + (ganado ? 1 : 0),
+        perdidas: actuales.perdidas + (ganado ? 0 : 1),
+        rachaActual,
+        mejorRacha: Math.max(actuales.mejorRacha, rachaActual),
+      };
+      if (!estadisticasValidas(estadisticas)) return false;
+      const topDiez = [...ranking, registro].sort((a, b) => b.puntaje - a.puntaje).slice(0, 10);
+      // Una sola operación conjunta; no recalcula ni limita el puntaje final.
+      await AsyncStorage.multiSet([
+        [CLAVES.estadisticas, JSON.stringify(estadisticas)],
+        [CLAVES.ranking, JSON.stringify(topDiez)],
+      ]);
+      return true;
+    });
+  } catch {
+    return false;
+  }
 }
 
 export async function leerConfiguracion() {
@@ -116,11 +176,9 @@ export function guardarConfiguracion(configuracion) {
   return guardarValidado(CLAVES.configuracion, configuracion, configuracionValida);
 }
 
-export async function borrarEstadisticas() {
-  try {
+export function borrarEstadisticas() {
+  return encolarResultado(async () => {
     await AsyncStorage.multiRemove([CLAVES.estadisticas, CLAVES.ranking]);
     return true;
-  } catch {
-    return false;
-  }
+  });
 }
