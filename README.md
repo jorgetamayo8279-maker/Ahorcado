@@ -163,6 +163,16 @@ Ahorcado/
 - Expo Go compatible con SDK 57 en un celular.
 - Computador y celular conectados a una red que permita acceder al servidor de desarrollo.
 
+## Creación inicial del proyecto
+
+La estructura base de El Ahorcado Móvil fue creada con React Native mediante Expo, utilizando la plantilla `blank`:
+
+```bash
+npx create-expo-app@latest Ahorcado --template blank
+```
+
+Este comando documenta la creación original del proyecto; para ejecutar el repositorio actual, sigue las instrucciones de la siguiente sección.
+
 ## Instalación y ejecución
 
 ```bash
