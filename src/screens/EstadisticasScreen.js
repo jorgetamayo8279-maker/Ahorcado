@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { leerEstadisticas, leerRanking, ESTADISTICAS_POR_DEFECTO } from '../storage/almacenamiento';
 import { useThemedStyles } from '../theme/ThemeContext';
+import FooterAutor from '../components/FooterAutor';
 
 function textoSeguro(valor) {
   return typeof valor === 'string' && valor.trim() ? valor : 'No disponible';
@@ -111,6 +112,7 @@ export default function EstadisticasScreen() {
           </View>
         )}
         ListEmptyComponent={cargando ? null : <Text style={styles.texto}>Aún no hay puntajes registrados.</Text>}
+        ListFooterComponent={FooterAutor}
       />
     </SafeAreaView>
   );

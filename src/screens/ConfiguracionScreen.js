@@ -6,6 +6,7 @@ import {
   leerConfiguracion, guardarConfiguracion, borrarEstadisticas, CONFIGURACION_POR_DEFECTO,
 } from '../storage/almacenamiento';
 import { useTheme, useThemedStyles } from '../theme/ThemeContext';
+import FooterAutor from '../components/FooterAutor';
 
 export default function ConfiguracionScreen() {
   const styles = useThemedStyles(crearEstilos);
@@ -175,6 +176,7 @@ export default function ConfiguracionScreen() {
         <Text style={styles.texto} accessibilityLiveRegion="polite">
           {operacion === 'guardando' ? 'Guardando…' : operacion === 'borrando' ? 'Borrando…' : mensaje}
         </Text>
+        <FooterAutor />
       </ScrollView>
     </SafeAreaView>
   );

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemedStyles } from '../theme/ThemeContext';
+import FooterAutor from '../components/FooterAutor';
 
 const secciones = [
   {
@@ -84,6 +85,7 @@ export default function InstruccionesScreen() {
             ))}
           </View>
         ))}
+        <FooterAutor />
       </ScrollView>
     </SafeAreaView>
   );

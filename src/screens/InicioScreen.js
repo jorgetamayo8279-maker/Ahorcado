@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 import { useTheme, useThemedStyles } from '../theme/ThemeContext';
+import FooterAutor from '../components/FooterAutor';
 
 export default function InicioScreen({ navigation }) {
   const styles = useThemedStyles(crearEstilos);
@@ -94,9 +95,7 @@ export default function InicioScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.footer}>
-        Programación Móvil
-      </Text>
+      <FooterAutor style={styles.footer} />
     </KeyboardAvoidingView>
   );
 }
@@ -210,8 +209,6 @@ const crearEstilos = (colors) => StyleSheet.create({
 
   footer: {
     color: colors.footer,
-    textAlign: 'center',
     marginTop: 24,
-    fontSize: 12,
   },
 });
