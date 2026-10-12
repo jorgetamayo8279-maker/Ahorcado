@@ -1,16 +1,31 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, Text, Pressable, ScrollView, StyleSheet, BackHandler, Alert, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
-import useJuego from '../hooks/useJuego';
+import * as Haptics from 'expo-haptics';
+import useJuego, { normalizar } from '../hooks/useJuego';
 import Ahorcado from '../components/Ahorcado';
 import PalabraOculta from '../components/PalabraOculta';
 import Teclado from '../components/Teclado';
 import Marcador from '../components/Marcador';
 import ModalResultado from '../components/ModalResultado';
 import { obtenerCategoriaPorId, niveles } from '../data/palabras';
-import { registrarResultadoPartida } from '../storage/almacenamiento';
+import {
+  registrarResultadoPartida, leerConfiguracion, CONFIGURACION_POR_DEFECTO,
+} from '../storage/almacenamiento';
 import colors from '../theme/colors';
+
+async function emitirHaptico(tipo) {
+  try {
+    if (tipo === 'acierto') {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } else {
+      await Haptics.notificationAsync(tipo);
+    }
+  } catch {
+    // Un dispositivo sin feedback háptico no interrumpe la partida.
+  }
+}
 
 export default function JuegoScreen({ navigation, route }) {
   const { jugador, categoria, nivel } = route?.params ?? {};
@@ -62,6 +77,56 @@ function Partida({ navigation, jugador, categoria, nivel }) {
   const nombreCategoria = obtenerCategoriaPorId(categoriaPartida)?.nombre;
   const nombreNivel = niveles.find((opcion) => opcion.id === nivel)?.nombre;
   const resultadoIntentado = useRef(null);
+  const [configuracion, setConfiguracion] = useState(null);
+  const letrasPendientes = useRef(new Set());
+  const feedbackFinalIntentado = useRef(false);
+
+  useEffect(() => {
+    let activo = true;
+    async function cargarConfiguracion() {
+      let datos = { ...CONFIGURACION_POR_DEFECTO };
+      try {
+        datos = await leerConfiguracion();
+      } catch {
+        // Conserva los valores por defecto si falla la lectura.
+      }
+      if (activo) setConfiguracion(datos);
+    }
+    void cargarConfiguracion();
+    return () => { activo = false; };
+  }, []);
+
+  function seleccionarLetra(letra) {
+    const normalizada = normalizar(letra);
+    if (jugando && !letrasUsadas.includes(normalizada)) {
+      letrasPendientes.current.add(normalizada);
+    }
+    procesarLetra(letra);
+  }
+
+  useEffect(() => {
+    const resueltas = [...letrasPendientes.current].filter((letra) => letrasUsadas.includes(letra));
+    resueltas.forEach((letra) => letrasPendientes.current.delete(letra));
+
+    if (terminado) {
+      letrasPendientes.current.clear();
+      if (configuracion === null || feedbackFinalIntentado.current) return;
+      feedbackFinalIntentado.current = true;
+      // Si la pulsación termina la partida, solo emite el feedback final.
+      if (configuracion.vibracion === true) {
+        void emitirHaptico(estado === 'ganado'
+          ? Haptics.NotificationFeedbackType.Success : Haptics.NotificationFeedbackType.Error);
+      }
+      return;
+    }
+
+    // No vibra mientras se carga la preferencia ni reproduce pulsaciones anteriores.
+    if (configuracion?.vibracion !== true) return;
+    resueltas.forEach((letra) => {
+      if (letrasAcertadas.includes(letra)) void emitirHaptico('acierto');
+      else if (letrasFalladas.includes(letra)) void emitirHaptico(Haptics.NotificationFeedbackType.Warning);
+    });
+  }, [configuracion, terminado, estado, letrasUsadas, letrasAcertadas, letrasFalladas]);
 
   useEffect(() => {
     if (!terminado || resultadoIntentado.current !== null) return;
@@ -138,7 +203,7 @@ function Partida({ navigation, jugador, categoria, nivel }) {
           letrasAcertadas={letrasAcertadas}
           letrasFalladas={letrasFalladas}
           letrasUsadas={letrasUsadas}
-          onLetra={procesarLetra}
+          onLetra={seleccionarLetra}
           deshabilitado={!jugando}
         />
       </ScrollView>
