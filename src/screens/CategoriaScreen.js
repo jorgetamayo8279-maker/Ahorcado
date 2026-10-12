@@ -10,6 +10,11 @@ import {
 import { useThemedStyles } from '../theme/ThemeContext';
 import { categorias, niveles } from '../data/palabras';
 
+const opcionesCategorias = [
+  ...categorias,
+  { id: 'aleatoria', nombre: 'Aleatoria', icono: '🎲' },
+];
+
 export default function CategoriaScreen({ navigation, route }) {
   const styles = useThemedStyles(crearEstilos);
   const jugador = route?.params?.jugador || 'Jugador';
@@ -57,7 +62,7 @@ export default function CategoriaScreen({ navigation, route }) {
       </Text>
 
       <View style={styles.gridCategorias}>
-        {categorias.map((categoria) => {
+        {opcionesCategorias.map((categoria) => {
           const seleccionada =
             categoriaSeleccionada === categoria.id;
 
