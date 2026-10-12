@@ -36,4 +36,55 @@ const colors = {
   },
 };
 
+export const paletaClara = {
+  ...colors.light,
+  secondary: colors.secondary,
+  success: colors.success,
+  danger: colors.danger,
+  text: colors.gray900,
+  textSecondaryStrong: colors.gray700,
+  borderSubtle: colors.gray100,
+  mutedSurface: colors.gray100,
+  disabledBackground: colors.gray300,
+  disabledButton: colors.gray700,
+  headerBackground: colors.primary,
+  onHeader: colors.white,
+  onButton: colors.white,
+  onResult: colors.white,
+  switchThumb: colors.white,
+  inputBackground: '#FAFAFA',
+  subtitle: '#A8D4FF',
+  onSelectedSecondary: '#DCEBFA',
+  selectionMark: '#BFE1FF',
+  footer: '#B9CCE2',
+  shadow: colors.black,
+  overlay: `${colors.black}99`,
+};
+
+export const paletaOscura = {
+  ...paletaClara,
+  ...colors.dark,
+  primary: '#A8D4FF',
+  secondary: '#326EA8',
+  button: '#326EA8',
+  success: '#86C56B',
+  danger: '#FF8A85',
+  textSecondaryStrong: '#CBD5E1',
+  borderSubtle: '#475569',
+  mutedSurface: '#334155',
+  disabledBackground: '#475569',
+  disabledButton: '#475569',
+  headerBackground: '#172D4F',
+  onHeader: '#F8FAFC',
+  inputBackground: '#0F172A',
+  onResult: '#0F172A',
+  overlay: '#000000B3',
+};
+
+export const paletas = { claro: paletaClara, oscuro: paletaOscura };
+
+// Conserva los colores e imports anteriores; las vistas usan la paleta del contexto.
+colors.light = paletaClara;
+colors.dark = paletaOscura;
+
 export default colors;

@@ -7,10 +7,11 @@ import {
   ScrollView,
 } from 'react-native';
 
-import colors from '../theme/colors';
+import { useThemedStyles } from '../theme/ThemeContext';
 import { categorias, niveles } from '../data/palabras';
 
 export default function CategoriaScreen({ navigation, route }) {
+  const styles = useThemedStyles(crearEstilos);
   const jugador = route?.params?.jugador || 'Jugador';
 
   const [categoriaSeleccionada, setCategoriaSeleccionada] =
@@ -181,10 +182,10 @@ export default function CategoriaScreen({ navigation, route }) {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = (colors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.gray50,
+    backgroundColor: colors.background,
   },
 
   contenido: {
@@ -204,14 +205,14 @@ const styles = StyleSheet.create({
 
   descripcion: {
     fontSize: 15,
-    color: colors.gray500,
+    color: colors.textSecondary,
     marginTop: 6,
   },
 
   tituloSeccion: {
     fontSize: 19,
     fontWeight: '700',
-    color: colors.gray900,
+    color: colors.text,
     marginBottom: 14,
   },
 
@@ -225,16 +226,16 @@ const styles = StyleSheet.create({
   tarjetaCategoria: {
     width: '48%',
     minHeight: 130,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: colors.gray100,
+    borderColor: colors.borderSubtle,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
     padding: 12,
 
-    shadowColor: colors.black,
+    shadowColor: colors.shadow,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -246,7 +247,7 @@ const styles = StyleSheet.create({
   },
 
   tarjetaCategoriaSeleccionada: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.headerBackground,
     borderColor: colors.secondary,
   },
 
@@ -262,11 +263,11 @@ const styles = StyleSheet.create({
   },
 
   textoSeleccionado: {
-    color: colors.white,
+    color: colors.onButton,
   },
 
   marcaSeleccion: {
-    color: '#BFE1FF',
+    color: colors.selectionMark,
     fontSize: 11,
     marginTop: 7,
     fontWeight: '600',
@@ -277,10 +278,10 @@ const styles = StyleSheet.create({
   },
 
   tarjetaNivel: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 14,
     borderWidth: 2,
-    borderColor: colors.gray100,
+    borderColor: colors.borderSubtle,
     paddingVertical: 15,
     paddingHorizontal: 16,
     marginBottom: 10,
@@ -302,13 +303,13 @@ const styles = StyleSheet.create({
   },
 
   descripcionNivel: {
-    color: colors.gray500,
+    color: colors.textSecondary,
     fontSize: 13,
     marginTop: 3,
   },
 
   descripcionSeleccionada: {
-    color: '#DCEBFA',
+    color: colors.onSelectedSecondary,
   },
 
   radio: {
@@ -316,20 +317,20 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: 11,
     borderWidth: 2,
-    borderColor: colors.gray300,
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   radioSeleccionado: {
-    borderColor: colors.white,
+    borderColor: colors.onButton,
   },
 
   radioInterior: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: colors.white,
+    backgroundColor: colors.onButton,
   },
 
   botonComenzar: {
@@ -340,17 +341,17 @@ const styles = StyleSheet.create({
   },
 
   botonDeshabilitado: {
-    backgroundColor: colors.gray300,
+    backgroundColor: colors.disabledBackground,
   },
 
   textoBoton: {
-    color: colors.white,
+    color: colors.onButton,
     fontSize: 16,
     fontWeight: 'bold',
     letterSpacing: 0.8,
   },
 
   textoBotonDeshabilitado: {
-    color: colors.gray500,
+    color: colors.textSecondary,
   },
 });

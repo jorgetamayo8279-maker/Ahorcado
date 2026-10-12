@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import colors from '../theme/colors';
+import { useThemedStyles } from '../theme/ThemeContext';
 
 const FILAS = ['ABCDEF', 'GHIJKL', 'MNÑOP', 'QRSTU', 'VWXYZ'];
 
@@ -11,6 +11,7 @@ export default function Teclado({
   onLetra,
   deshabilitado = false,
 }) {
+  const styles = useThemedStyles(crearEstilos);
   const acertadas = new Set(Array.isArray(letrasAcertadas) ? letrasAcertadas : []);
   const falladas = new Set(Array.isArray(letrasFalladas) ? letrasFalladas : []);
   const usadas = new Set(Array.isArray(letrasUsadas) ? letrasUsadas : []);
@@ -63,7 +64,7 @@ export default function Teclado({
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = (colors) => StyleSheet.create({
   teclado: { width: '100%', gap: 6 },
   fila: { flexDirection: 'row', justifyContent: 'center', gap: 4 },
   tecla: {
@@ -77,14 +78,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     borderColor: colors.secondary,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
   },
   letra: { fontSize: 18, lineHeight: 22, fontWeight: '700', color: colors.primary },
-  marca: { fontSize: 14, lineHeight: 16, color: colors.gray700 },
+  marca: { fontSize: 14, lineHeight: 16, color: colors.textSecondaryStrong },
   acertada: { backgroundColor: colors.success, borderColor: colors.success },
   fallada: { backgroundColor: colors.danger, borderColor: colors.danger },
-  deshabilitada: { backgroundColor: colors.gray100, borderColor: colors.gray300 },
+  deshabilitada: { backgroundColor: colors.mutedSurface, borderColor: colors.border },
   atenuada: { opacity: 0.6 },
-  presionada: { backgroundColor: colors.gray100 },
-  textoResultado: { color: colors.white },
+  presionada: { backgroundColor: colors.mutedSurface },
+  textoResultado: { color: colors.onResult },
 });

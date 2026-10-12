@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import colors from '../theme/colors';
+import { useThemedStyles } from '../theme/ThemeContext';
 
 const secciones = [
   {
@@ -71,6 +71,7 @@ const secciones = [
 ];
 
 export default function InstruccionesScreen() {
+  const styles = useThemedStyles(crearEstilos);
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <ScrollView contentContainerStyle={styles.contenido}>
@@ -88,10 +89,10 @@ export default function InstruccionesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = (colors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.gray50,
+    backgroundColor: colors.background,
   },
   contenido: { padding: 16, paddingBottom: 32, gap: 16 },
   titulo: {
@@ -100,10 +101,10 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
   tarjeta: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: colors.gray300,
+    borderColor: colors.border,
     padding: 16,
     gap: 10,
   },
@@ -111,6 +112,6 @@ const styles = StyleSheet.create({
   texto: {
     fontSize: 16,
     lineHeight: 24,
-    color: colors.gray700,
+    color: colors.textSecondaryStrong,
   },
 });

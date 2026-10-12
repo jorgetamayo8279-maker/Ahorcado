@@ -3,7 +3,7 @@ import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { leerEstadisticas, leerRanking, ESTADISTICAS_POR_DEFECTO } from '../storage/almacenamiento';
-import colors from '../theme/colors';
+import { useThemedStyles } from '../theme/ThemeContext';
 
 function textoSeguro(valor) {
   return typeof valor === 'string' && valor.trim() ? valor : 'No disponible';
@@ -34,6 +34,7 @@ function crearTopDiez(ranking) {
 }
 
 export default function EstadisticasScreen() {
+  const styles = useThemedStyles(crearEstilos);
   const [estadisticas, setEstadisticas] = useState({ ...ESTADISTICAS_POR_DEFECTO });
   const [ranking, setRanking] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -115,16 +116,16 @@ export default function EstadisticasScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.gray50 },
+const crearEstilos = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   contenido: { padding: 12, paddingBottom: 24 },
   encabezado: { gap: 12, marginBottom: 12 },
   titulo: { fontSize: 22, fontWeight: '700', color: colors.primary },
   indicadores: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  tarjeta: { flexGrow: 1, flexBasis: 130, padding: 12, backgroundColor: colors.white, borderRadius: 10 },
+  tarjeta: { flexGrow: 1, flexBasis: 130, padding: 12, backgroundColor: colors.surface, borderRadius: 10 },
   valor: { fontSize: 24, fontWeight: '700', color: colors.primary, marginTop: 4 },
-  texto: { fontSize: 14, color: colors.gray700 },
-  registro: { padding: 12, marginBottom: 8, gap: 4, backgroundColor: colors.white, borderRadius: 10 },
+  texto: { fontSize: 14, color: colors.textSecondaryStrong },
+  registro: { padding: 12, marginBottom: 8, gap: 4, backgroundColor: colors.surface, borderRadius: 10 },
   nombre: { fontSize: 18, fontWeight: '700', color: colors.primary },
   puntaje: { fontSize: 16, fontWeight: '600', color: colors.primary },
 });

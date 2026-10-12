@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import colors from '../theme/colors';
+import { useThemedStyles } from '../theme/ThemeContext';
 
 export default function Marcador({ vidasRestantes, puntaje, tiempoRestante }) {
+  const styles = useThemedStyles(crearEstilos);
   const vidas = Number.isFinite(vidasRestantes)
     ? Math.min(6, Math.max(0, Math.floor(vidasRestantes))) : 0;
   const puntos = Number.isFinite(puntaje) ? puntaje : 0;
@@ -47,7 +48,7 @@ export default function Marcador({ vidasRestantes, puntaje, tiempoRestante }) {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = (colors) => StyleSheet.create({
   marcador: { width: '100%', flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   dato: {
     flexGrow: 1,
@@ -56,12 +57,12 @@ const styles = StyleSheet.create({
     minWidth: 0,
     padding: 8,
     borderWidth: 1,
-    borderColor: colors.gray300,
+    borderColor: colors.border,
     borderRadius: 10,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     alignItems: 'center',
   },
-  titulo: { fontSize: 14, color: colors.gray700, textAlign: 'center' },
+  titulo: { fontSize: 14, color: colors.textSecondaryStrong, textAlign: 'center' },
   valor: { fontSize: 22, fontWeight: '700', color: colors.primary, textAlign: 'center' },
   critico: { borderColor: colors.danger },
   textoCritico: { color: colors.danger },

@@ -14,7 +14,7 @@ import { obtenerCategoriaPorId, niveles } from '../data/palabras';
 import {
   registrarResultadoPartida, leerConfiguracion, CONFIGURACION_POR_DEFECTO,
 } from '../storage/almacenamiento';
-import colors from '../theme/colors';
+import { useThemedStyles } from '../theme/ThemeContext';
 
 const SONIDOS = {
   acierto: require('../../assets/sounds/acierto.wav'),
@@ -76,6 +76,7 @@ async function emitirHaptico(tipo) {
 }
 
 export default function JuegoScreen({ navigation, route }) {
+  const styles = useThemedStyles(crearEstilos);
   const { jugador, categoria, nivel } = route?.params ?? {};
   const jugadorValido = typeof jugador === 'string' && jugador.trim().length > 0;
   const categoriaValida = typeof categoria === 'string'
@@ -114,6 +115,7 @@ export default function JuegoScreen({ navigation, route }) {
 }
 
 function Partida({ navigation, jugador, categoria, nivel }) {
+  const styles = useThemedStyles(crearEstilos);
   const {
     palabra, letrasAcertadas, letrasFalladas, letrasUsadas, errores,
     vidasRestantes, puntaje, tiempoRestante, estado, pista, pistaVisible,
@@ -276,14 +278,14 @@ function Partida({ navigation, jugador, categoria, nivel }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.gray50 },
+const crearEstilos = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   contenido: { padding: 12, paddingBottom: 20, gap: 10 },
   encabezado: { gap: 4 },
   titulo: { fontSize: 20, fontWeight: '700', color: colors.primary },
-  texto: { fontSize: 14, color: colors.gray700 },
+  texto: { fontSize: 14, color: colors.textSecondaryStrong },
   dibujo: { width: '100%', maxWidth: 140, alignSelf: 'center' },
-  pista: { fontSize: 16, color: colors.primary, backgroundColor: colors.white, padding: 12, borderRadius: 8 },
+  pista: { fontSize: 16, color: colors.primary, backgroundColor: colors.surface, padding: 12, borderRadius: 8 },
   boton: {
     minHeight: 48,
     minWidth: 48,
@@ -293,8 +295,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  botonDeshabilitado: { backgroundColor: colors.gray700 },
-  textoBoton: { fontSize: 16, fontWeight: '600', color: colors.white, textAlign: 'center' },
+  botonDeshabilitado: { backgroundColor: colors.disabledButton },
+  textoBoton: { fontSize: 16, fontWeight: '600', color: colors.onButton, textAlign: 'center' },
   presionado: { opacity: 0.8 },
   error: { flex: 1, justifyContent: 'center', padding: 20, gap: 16 },
 });

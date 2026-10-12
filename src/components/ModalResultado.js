@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal, View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
-import colors from '../theme/colors';
+import { useThemedStyles } from '../theme/ThemeContext';
 
 export default function ModalResultado({
   visible = false,
@@ -10,6 +10,7 @@ export default function ModalResultado({
   onJugarDeNuevo,
   onMenu,
 }) {
+  const styles = useThemedStyles(crearEstilos);
   if (!visible || (estado !== 'ganado' && estado !== 'perdido')) return null;
 
   const ganado = estado === 'ganado';
@@ -79,10 +80,10 @@ export default function ModalResultado({
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = (colors) => StyleSheet.create({
   fondo: {
     flex: 1,
-    backgroundColor: `${colors.black}99`,
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
@@ -91,7 +92,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 400,
     maxHeight: '90%',
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 16,
     borderTopWidth: 6,
     overflow: 'hidden',
@@ -100,9 +101,9 @@ const styles = StyleSheet.create({
   derrota: { borderTopColor: colors.danger },
   contenido: { padding: 20, gap: 16 },
   titulo: { fontSize: 28, fontWeight: '700', color: colors.primary, textAlign: 'center' },
-  etiqueta: { fontSize: 16, color: colors.gray700, textAlign: 'center' },
+  etiqueta: { fontSize: 16, color: colors.textSecondaryStrong, textAlign: 'center' },
   palabra: { fontSize: 24, fontWeight: '700', color: colors.primary, textAlign: 'center' },
-  puntaje: { fontSize: 18, color: colors.gray700, textAlign: 'center' },
+  puntaje: { fontSize: 18, color: colors.textSecondaryStrong, textAlign: 'center' },
   boton: {
     minHeight: 48,
     minWidth: 48,
@@ -113,8 +114,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   botonPrincipal: { backgroundColor: colors.secondary },
-  botonMenu: { backgroundColor: colors.gray50, borderWidth: 1, borderColor: colors.gray300 },
-  textoPrincipal: { fontSize: 16, fontWeight: '600', color: colors.white, textAlign: 'center' },
+  botonMenu: { backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border },
+  textoPrincipal: { fontSize: 16, fontWeight: '600', color: colors.onButton, textAlign: 'center' },
   textoMenu: { fontSize: 16, fontWeight: '600', color: colors.primary, textAlign: 'center' },
   presionado: { opacity: 0.8 },
   deshabilitado: { opacity: 0.5 },

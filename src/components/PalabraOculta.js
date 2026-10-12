@@ -1,13 +1,14 @@
 import React from 'react';
 import { Text, StyleSheet } from 'react-native';
 import { normalizar } from '../hooks/useJuego';
-import colors from '../theme/colors';
+import { useThemedStyles } from '../theme/ThemeContext';
 
 export default function PalabraOculta({
   palabra = '',
   letrasAcertadas = [],
   revelarCompleta = false,
 }) {
+  const styles = useThemedStyles(crearEstilos);
   const caracteres = typeof palabra === 'string' ? [...palabra.normalize('NFC')] : [];
   const acertadas = new Set(
     Array.isArray(letrasAcertadas) ? letrasAcertadas.map(normalizar) : []
@@ -35,7 +36,7 @@ export default function PalabraOculta({
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = (colors) => StyleSheet.create({
   palabra: {
     width: '100%',
     flexShrink: 1,

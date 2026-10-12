@@ -5,9 +5,11 @@ import { useFocusEffect } from '@react-navigation/native';
 import {
   leerConfiguracion, guardarConfiguracion, borrarEstadisticas, CONFIGURACION_POR_DEFECTO,
 } from '../storage/almacenamiento';
-import colors from '../theme/colors';
+import { useTheme, useThemedStyles } from '../theme/ThemeContext';
 
 export default function ConfiguracionScreen() {
+  const styles = useThemedStyles(crearEstilos);
+  const { paleta: colors, cambiarTema } = useTheme();
   const [configuracion, setConfiguracion] = useState({ ...CONFIGURACION_POR_DEFECTO });
   const [cargando, setCargando] = useState(true);
   const [operacion, setOperacion] = useState('');
@@ -36,6 +38,7 @@ export default function ConfiguracionScreen() {
       if (sesionActual.current !== sesion) return;
       actual.current = datos;
       setConfiguracion(datos);
+      cambiarTema(datos.tema);
       setCargando(false);
     }
     cargar();
@@ -43,7 +46,7 @@ export default function ConfiguracionScreen() {
       if (sesionActual.current === sesion) sesionActual.current = null;
       if (confirmacion.current === sesion) confirmacion.current = null;
     };
-  }, []));
+  }, [cambiarTema]));
 
   const bloqueado = cargando || operacion !== '';
 
@@ -56,6 +59,7 @@ export default function ConfiguracionScreen() {
     ocupado.current = true;
     actual.current = siguiente;
     setConfiguracion(siguiente);
+    if (campo === 'tema') cambiarTema(valor);
     setOperacion('guardando');
     setMensaje('');
     pendiente.current = (async () => {
@@ -66,6 +70,7 @@ export default function ConfiguracionScreen() {
         guardado = false;
       }
       ocupado.current = false;
+      if (!guardado && campo === 'tema') cambiarTema(anterior.tema);
       if (sesionActual.current !== sesion) return;
       if (!guardado) {
         actual.current = anterior;
@@ -131,8 +136,8 @@ export default function ConfiguracionScreen() {
               accessibilityRole="switch"
               accessibilityLabel={`${titulo} ${estado}`}
               accessibilityState={{ checked: configuracion[campo], disabled: bloqueado }}
-              trackColor={{ false: colors.gray500, true: colors.secondary }}
-              thumbColor={colors.white}
+              trackColor={{ false: colors.textSecondary, true: colors.secondary }}
+              thumbColor={colors.switchThumb}
             />
           </View>
         ))}
@@ -175,18 +180,18 @@ export default function ConfiguracionScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.gray50 },
+const crearEstilos = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   contenido: { padding: 16, paddingBottom: 24, gap: 16 },
   titulo: { fontSize: 24, fontWeight: '700', color: colors.primary },
   nombre: { fontSize: 18, fontWeight: '600', color: colors.primary, flexShrink: 1 },
-  texto: { fontSize: 14, color: colors.gray700 },
-  fila: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: 12, backgroundColor: colors.white, borderRadius: 10 },
+  texto: { fontSize: 14, color: colors.textSecondaryStrong },
+  fila: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: 12, backgroundColor: colors.surface, borderRadius: 10 },
   switch: { minWidth: 48, minHeight: 48 },
   temas: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  tema: { flexGrow: 1, flexBasis: 120, minHeight: 48, minWidth: 48, padding: 12, borderWidth: 2, borderColor: colors.gray300, borderRadius: 10, backgroundColor: colors.white },
+  tema: { flexGrow: 1, flexBasis: 120, minHeight: 48, minWidth: 48, padding: 12, borderWidth: 2, borderColor: colors.border, borderRadius: 10, backgroundColor: colors.surface },
   seleccionado: { borderColor: colors.secondary },
   atenuado: { opacity: 0.6 },
-  botonBorrar: { minHeight: 48, minWidth: 48, padding: 12, borderWidth: 1, borderColor: colors.danger, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.white },
+  botonBorrar: { minHeight: 48, minWidth: 48, padding: 12, borderWidth: 1, borderColor: colors.danger, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surface },
   textoBorrar: { fontSize: 16, fontWeight: '600', color: colors.primary, textAlign: 'center' },
 });

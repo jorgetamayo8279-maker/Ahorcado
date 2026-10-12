@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import Svg, { Circle, G, Line } from 'react-native-svg';
-import colors from '../theme/colors';
+import { useTheme } from '../theme/ThemeContext';
 
 export default function Ahorcado({ errores = 0 }) {
+  const { paleta: colors } = useTheme();
   // Los valores inválidos no dibujan partes; las fracciones usan etapas completas.
   const etapas = typeof errores === 'number' && Number.isFinite(errores)
     ? Math.min(6, Math.max(0, Math.floor(errores)))

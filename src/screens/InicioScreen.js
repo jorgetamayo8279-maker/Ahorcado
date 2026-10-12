@@ -10,9 +10,11 @@ import {
   Alert,
 } from 'react-native';
 
-import colors from '../theme/colors';
+import { useTheme, useThemedStyles } from '../theme/ThemeContext';
 
 export default function InicioScreen({ navigation }) {
+  const styles = useThemedStyles(crearEstilos);
+  const { paleta: colors } = useTheme();
   const [nombre, setNombre] = useState('');
 
   const iniciarJuego = () => {
@@ -51,7 +53,7 @@ export default function InicioScreen({ navigation }) {
         <TextInput
           style={styles.input}
           placeholder="Escribe tu nombre"
-          placeholderTextColor={colors.gray500}
+          placeholderTextColor={colors.textSecondary}
           value={nombre}
           onChangeText={setNombre}
           maxLength={30}
@@ -99,10 +101,10 @@ export default function InicioScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = (colors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.headerBackground,
     justifyContent: 'center',
     paddingHorizontal: 24,
   },
@@ -118,14 +120,14 @@ const styles = StyleSheet.create({
   },
 
   titulo: {
-    color: colors.white,
+    color: colors.onHeader,
     fontSize: 34,
     fontWeight: 'bold',
     letterSpacing: 2,
   },
 
   subtitulo: {
-    color: '#A8D4FF',
+    color: colors.subtitle,
     fontSize: 20,
     fontWeight: '700',
     letterSpacing: 5,
@@ -133,7 +135,7 @@ const styles = StyleSheet.create({
   },
 
   descripcion: {
-    color: '#DCEBFA',
+    color: colors.onSelectedSecondary,
     textAlign: 'center',
     fontSize: 15,
     marginTop: 12,
@@ -142,11 +144,11 @@ const styles = StyleSheet.create({
   },
 
   tarjeta: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 22,
     padding: 22,
 
-    shadowColor: colors.black,
+    shadowColor: colors.shadow,
     shadowOffset: {
       width: 0,
       height: 6,
@@ -160,20 +162,20 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 15,
     fontWeight: '600',
-    color: colors.gray700,
+    color: colors.textSecondaryStrong,
     marginBottom: 8,
   },
 
   input: {
     borderWidth: 1.5,
-    borderColor: colors.gray300,
+    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: 15,
     paddingVertical: 13,
     fontSize: 16,
-    color: colors.gray900,
+    color: colors.text,
     marginBottom: 18,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: colors.inputBackground,
   },
 
   botonPrincipal: {
@@ -185,7 +187,7 @@ const styles = StyleSheet.create({
   },
 
   textoBotonPrincipal: {
-    color: colors.white,
+    color: colors.onButton,
     fontSize: 17,
     fontWeight: 'bold',
     letterSpacing: 1,
@@ -207,7 +209,7 @@ const styles = StyleSheet.create({
   },
 
   footer: {
-    color: '#B9CCE2',
+    color: colors.footer,
     textAlign: 'center',
     marginTop: 24,
     fontSize: 12,

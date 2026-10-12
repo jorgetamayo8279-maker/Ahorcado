@@ -1,5 +1,5 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import React, { useMemo } from 'react';
+import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import InicioScreen from '../screens/InicioScreen';
@@ -8,19 +8,38 @@ import CategoriaScreen from '../screens/CategoriaScreen';
 import JuegoScreen from '../screens/JuegoScreen';
 import EstadisticasScreen from '../screens/EstadisticasScreen';
 import ConfiguracionScreen from '../screens/ConfiguracionScreen';
+import { useTheme } from '../theme/ThemeContext';
 
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
+  const { tema, paleta } = useTheme();
+  const temaNavegacion = useMemo(() => {
+    const base = tema === 'oscuro' ? DarkTheme : DefaultTheme;
+    return {
+      ...base,
+      colors: {
+        ...base.colors,
+        primary: paleta.primary,
+        background: paleta.background,
+        card: paleta.headerBackground,
+        text: paleta.onHeader,
+        border: paleta.border,
+        notification: paleta.danger,
+      },
+    };
+  }, [tema, paleta]);
+
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={temaNavegacion}>
       <Stack.Navigator
         initialRouteName="Inicio"
         screenOptions={{
           headerStyle: {
-            backgroundColor: '#1F3864',
+            backgroundColor: paleta.headerBackground,
           },
-          headerTintColor: '#FFFFFF',
+          headerTintColor: paleta.onHeader,
+          contentStyle: { backgroundColor: paleta.background },
           headerTitleStyle: {
             fontWeight: 'bold',
           },
