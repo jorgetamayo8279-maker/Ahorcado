@@ -3,6 +3,7 @@ import { View, Text, Pressable, ScrollView, StyleSheet, BackHandler, Alert, Plat
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
+import { createAudioPlayer } from 'expo-audio';
 import useJuego, { normalizar } from '../hooks/useJuego';
 import Ahorcado from '../components/Ahorcado';
 import PalabraOculta from '../components/PalabraOculta';
@@ -14,6 +15,53 @@ import {
   registrarResultadoPartida, leerConfiguracion, CONFIGURACION_POR_DEFECTO,
 } from '../storage/almacenamiento';
 import colors from '../theme/colors';
+
+const SONIDOS = {
+  acierto: require('../../assets/sounds/acierto.wav'),
+  error: require('../../assets/sounds/error.wav'),
+  victoria: require('../../assets/sounds/victoria.wav'),
+  derrota: require('../../assets/sounds/derrota.wav'),
+};
+
+function useSonidos() {
+  const recursos = useRef(null);
+
+  useEffect(() => {
+    const sesion = { reproductores: {}, intento: 0 };
+    recursos.current = sesion;
+    Object.entries(SONIDOS).forEach(([tipo, fuente]) => {
+      try {
+        sesion.reproductores[tipo] = createAudioPlayer(fuente);
+      } catch {
+        // Un asset que no pueda cargarse no bloquea los demás efectos ni el juego.
+      }
+    });
+    return () => {
+      recursos.current = null;
+      Object.values(sesion.reproductores).forEach((reproductor) => {
+        try { reproductor.release(); } catch { /* Puede haberse liberado ya. */ }
+      });
+    };
+  }, []);
+
+  return useCallback(async (tipo) => {
+    const sesion = recursos.current;
+    if (!sesion) return;
+    const intento = ++sesion.intento;
+    try {
+      const reproductor = sesion.reproductores[tipo];
+      // No encola sonidos para reproducirlos tarde si la carga todavía no terminó.
+      if (!reproductor?.isLoaded) return;
+      Object.values(sesion.reproductores).forEach((actual) => actual.pause());
+      await reproductor.seekTo(0);
+      // Un evento posterior o un desmontaje cancela una reproducción pendiente.
+      if (recursos.current !== sesion || sesion.intento !== intento) return;
+      reproductor.play();
+    } catch {
+      // Los fallos de reproducción nunca interrumpen la partida.
+    }
+  }, []);
+}
 
 async function emitirHaptico(tipo) {
   try {
@@ -80,6 +128,7 @@ function Partida({ navigation, jugador, categoria, nivel }) {
   const [configuracion, setConfiguracion] = useState(null);
   const letrasPendientes = useRef(new Set());
   const feedbackFinalIntentado = useRef(false);
+  const emitirSonido = useSonidos();
 
   useEffect(() => {
     let activo = true;
@@ -113,6 +162,9 @@ function Partida({ navigation, jugador, categoria, nivel }) {
       if (configuracion === null || feedbackFinalIntentado.current) return;
       feedbackFinalIntentado.current = true;
       // Si la pulsación termina la partida, solo emite el feedback final.
+      if (configuracion.sonido === true) {
+        void emitirSonido(estado === 'ganado' ? 'victoria' : 'derrota');
+      }
       if (configuracion.vibracion === true) {
         void emitirHaptico(estado === 'ganado'
           ? Haptics.NotificationFeedbackType.Success : Haptics.NotificationFeedbackType.Error);
@@ -120,13 +172,18 @@ function Partida({ navigation, jugador, categoria, nivel }) {
       return;
     }
 
-    // No vibra mientras se carga la preferencia ni reproduce pulsaciones anteriores.
-    if (configuracion?.vibracion !== true) return;
+    // No emite efectos mientras carga la preferencia ni repite pulsaciones anteriores.
+    if (configuracion === null) return;
     resueltas.forEach((letra) => {
-      if (letrasAcertadas.includes(letra)) void emitirHaptico('acierto');
-      else if (letrasFalladas.includes(letra)) void emitirHaptico(Haptics.NotificationFeedbackType.Warning);
+      if (letrasAcertadas.includes(letra)) {
+        if (configuracion.sonido === true) void emitirSonido('acierto');
+        if (configuracion.vibracion === true) void emitirHaptico('acierto');
+      } else if (letrasFalladas.includes(letra)) {
+        if (configuracion.sonido === true) void emitirSonido('error');
+        if (configuracion.vibracion === true) void emitirHaptico(Haptics.NotificationFeedbackType.Warning);
+      }
     });
-  }, [configuracion, terminado, estado, letrasUsadas, letrasAcertadas, letrasFalladas]);
+  }, [configuracion, terminado, estado, letrasUsadas, letrasAcertadas, letrasFalladas, emitirSonido]);
 
   useEffect(() => {
     if (!terminado || resultadoIntentado.current !== null) return;
