@@ -1,41 +1,101 @@
-This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
+# El Ahorcado Móvil
 
-## Expo has changed — do not trust your training data
+Aplicación móvil. Priorizar patrones mobile-first, rendimiento y compatibilidad entre plataformas.
 
-Expo ships breaking changes every SDK release. APIs you remember are likely renamed, moved, or removed. Before writing any code that touches an Expo, EAS, or React Native API:
+## Tecnología
 
-1. Read the major version of the `expo` package in `package.json`.
-2. Fetch the matching versioned docs: `https://docs.expo.dev/versions/v<major>.0.0/`
-3. For anything else, fetch https://docs.expo.dev/llms.txt — an index of all Expo docs with corrections to common LLM misconceptions. Follow its links to the specific page you need; never answer from memory.
+- React Native.
+- Expo.
+- JavaScript.
+- React Navigation con Native Stack.
+- StyleSheet de React Native.
+- AsyncStorage se incorporará posteriormente para persistencia, previa autorización para instalar la dependencia.
 
-## Commands
+## Arquitectura obligatoria
 
-Use `bunx` instead of `npx` if the project uses bun (`bun.lock` present).
+```text
+src/navigation/
+  AppNavigator.js
 
-```bash
-npx expo install <package>  # ALWAYS use instead of npm/yarn/pnpm/bun add — resolves SDK-compatible versions
-npx expo start              # start the dev server
-npx expo lint               # lint
-npx tsc --noEmit            # typecheck
-npx expo-doctor             # diagnose dependency and config issues
-npx expo install --fix      # fix incompatible package versions
+src/screens/
+  InicioScreen.js
+  InstruccionesScreen.js
+  CategoriaScreen.js
+  JuegoScreen.js
+  EstadisticasScreen.js
+  ConfiguracionScreen.js
+
+src/components/
+  Ahorcado.js
+  PalabraOculta.js
+  Teclado.js
+  Marcador.js
+  ModalResultado.js
+
+src/hooks/
+  useJuego.js
+
+src/data/
+  palabras.js
+
+src/storage/
+  almacenamiento.js
+
+src/theme/
+  colors.js
 ```
 
-Run lint and typecheck before declaring any task done.
+## Reglas de arquitectura
 
-## Navigation & Routing
+- No reconstruir el proyecto.
+- No utilizar Expo Router, rutas basadas en archivos ni otra arquitectura de navegación.
+- No crear src/app/.
+- No renombrar las carpetas o archivos existentes sin autorización.
+- Mantener archivos .js aunque contengan JSX. No crear archivos .jsx.
+- No utilizar CSS web. Usar StyleSheet de React Native.
+- AppNavigator.js controla la navegación mediante React Navigation con Native Stack.
+- useJuego.js concentra la lógica del juego.
+- palabras.js contiene el banco de palabras.
+- almacenamiento.js concentra la persistencia.
+- colors.js concentra colores y temas.
+- JuegoScreen.js orquesta la partida, pero no debe contener toda la lógica.
+- Los componentes visuales deben permanecer separados y reutilizables.
+- Resultado se implementará mediante ModalResultado.js dentro del flujo de Juego, sin una pantalla independiente.
+- Splash se gestiona mediante Expo/app.json y assets, no como un Screen.js.
 
-- Use **Expo Router** for all navigation. Routes live in `src/app/` — every file there is a screen, `_layout.tsx` files define navigators. Keep non-route code (components, hooks, utils) outside `src/app/`.
-- Import `Link`, `router`, and `useLocalSearchParams` from `expo-router`.
-- Docs: https://docs.expo.dev/router/introduction.md
+## Dependencias y forma de trabajo
 
-## Building with EAS
+- No instalar nuevas dependencias sin autorización previa.
+- No modificar package.json salvo autorización.
+- Trabajar por módulos y probar cada módulo antes de avanzar.
+- Ejecutar las comprobaciones disponibles y pertinentes a cada módulo. No instalar herramientas ni generar configuración sin autorización para habilitar lint o comprobaciones de tipos.
+- Antes de cada commit, revisar git status y git diff.
+- No hacer commit ni push sin autorización expresa.
 
-Use EAS to build, sign, and submit the app in the cloud (`eas build`, `eas submit`) and to ship over-the-air updates (`eas update`) — no local Xcode or Android Studio required. Run EAS CLI as `bunx eas-cli <command>` in Bun projects, or `npx eas-cli@latest <command>` otherwise; substitute that for bare `eas` in docs examples.
-Docs: https://docs.expo.dev/eas/index.md
+## Documentación de Expo y React Native
 
-## Rules
+Expo puede introducir cambios incompatibles entre SDK. Antes de escribir código que utilice APIs de Expo, EAS o React Native:
 
-- If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
-- Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
-- Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
+1. Leer la versión mayor del paquete expo en package.json.
+2. Consultar la documentación correspondiente: https://docs.expo.dev/versions/v<major>.0.0/
+3. Para otros temas de Expo, consultar https://docs.expo.dev/llms.txt y seguir sus enlaces a la documentación específica. No asumir APIs de memoria.
+
+## Comandos
+
+Usar bunx en lugar de npx si existe bun.lock. No ejecutar comandos que instalen dependencias o modifiquen su configuración sin autorización.
+
+```bash
+npx expo start              # iniciar el servidor de desarrollo
+npx expo-doctor             # diagnosticar dependencias y configuración
+npx expo install <package>  # solo con autorización; resuelve versiones compatibles con el SDK
+npx expo install --fix      # solo con autorización para modificar dependencias
+```
+
+Si lint o las comprobaciones de tipos ya están configurados, ejecutarlos cuando correspondan al cambio. El proyecto mantiene JavaScript; no migrarlo a TypeScript para habilitar estas comprobaciones.
+
+## Configuración nativa y EAS
+
+- Si ios/ y android/ no existen, usar Continuous Native Generation: configurar el comportamiento nativo mediante app.json y config plugins, sin crear ni editar esas carpetas a mano.
+- Expo Go solo incluye sus módulos nativos integrados. Tras incorporar una biblioteca nativa autorizada que no esté incluida, utilizar una development build.
+- Para builds, firma, envío y actualizaciones OTA autorizados, utilizar EAS. Ejecutar la CLI mediante bunx eas-cli en proyectos Bun o npx eas-cli@latest en los demás.
+- Consultar https://docs.expo.dev/eas/index.md antes de trabajar con EAS.
