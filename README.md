@@ -113,6 +113,20 @@ Ahorcado/
 │       ├── error.wav
 │       ├── victoria.wav
 │       └── derrota.wav
+├── docs/
+│   └── diseno/                    → Exportaciones del diseño realizado en Figma
+│       ├── FLOW1-PANTALLA1.png
+│       ├── FLOW1-PANTALLA2.png
+│       ├── FLOW1-PANTALLA3.png
+│       ├── FLOW1-PANTALLA4.png
+│       ├── FLOW1-PANTALLA5.png
+│       ├── FLOW1-PANTALLA6.png
+│       ├── FLOW2-PANTALLA1.png
+│       ├── FLOW2-PANTALLA2.png
+│       ├── FLOW2-PANTALLA3.png
+│       ├── FLOW2-PANTALLA4.png
+│       ├── FLOW2-PANTALLA5.png
+│       └── FLOW2-PANTALLA6.png
 ├── src/
 │   ├── navigation/
 │   │   └── AppNavigator.js        → Navegación principal
@@ -177,9 +191,11 @@ Estos resultados no equivalen a una prueba de instalación ni del splash nativo 
 Diseño y prototipo en Figma:
 https://www.figma.com/design/J0ONsWmfkJj7fEoy2RxSQv
 
+Las exportaciones del diseño se encuentran disponibles en `docs/diseno/`.
+
 ## Capturas de pantalla
 
-Las capturas finales de la aplicación serán incorporadas con la documentación de entrega.
+El repositorio contiene 12 exportaciones visuales en `docs/diseno/`. Corresponden al material de diseño/prototipo realizado en Figma, no a capturas de la aplicación en ejecución.
 
 ## Enlaces del proyecto
 
