@@ -1,47 +1,356 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from 'react-native';
 
-export default function CategoriaScreen({ route }) {
+import colors from '../theme/colors';
+import { categorias, niveles } from '../data/palabras';
+
+export default function CategoriaScreen({ navigation, route }) {
   const jugador = route?.params?.jugador || 'Jugador';
 
+  const [categoriaSeleccionada, setCategoriaSeleccionada] =
+    useState(null);
+
+  const [nivelSeleccionado, setNivelSeleccionado] =
+    useState(null);
+
+  const puedeComenzar =
+    categoriaSeleccionada !== null &&
+    nivelSeleccionado !== null;
+
+  const comenzarPartida = () => {
+    if (!puedeComenzar) {
+      return;
+    }
+
+    navigation.navigate('Juego', {
+      jugador,
+      categoria: categoriaSeleccionada,
+      nivel: nivelSeleccionado,
+    });
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.titulo}>Categoría y nivel</Text>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contenido}
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={styles.encabezado}>
+        <Text style={styles.saludo}>
+          Hola, {jugador}
+        </Text>
 
-      <Text style={styles.saludo}>
-        Jugador: {jugador}
+        <Text style={styles.descripcion}>
+          Configura tu partida antes de comenzar.
+        </Text>
+      </View>
+
+      <Text style={styles.tituloSeccion}>
+        Selecciona una categoría
       </Text>
 
-      <Text style={styles.texto}>
-        Selecciona la categoría y el nivel de dificultad.
+      <View style={styles.gridCategorias}>
+        {categorias.map((categoria) => {
+          const seleccionada =
+            categoriaSeleccionada === categoria.id;
+
+          return (
+            <TouchableOpacity
+              key={categoria.id}
+              style={[
+                styles.tarjetaCategoria,
+                seleccionada &&
+                  styles.tarjetaCategoriaSeleccionada,
+              ]}
+              onPress={() =>
+                setCategoriaSeleccionada(categoria.id)
+              }
+              activeOpacity={0.8}
+            >
+              <Text style={styles.iconoCategoria}>
+                {categoria.icono}
+              </Text>
+
+              <Text
+                style={[
+                  styles.nombreCategoria,
+                  seleccionada &&
+                    styles.textoSeleccionado,
+                ]}
+              >
+                {categoria.nombre}
+              </Text>
+
+              {seleccionada && (
+                <Text style={styles.marcaSeleccion}>
+                  ✓ Seleccionada
+                </Text>
+              )}
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      <Text style={styles.tituloSeccion}>
+        Selecciona la dificultad
       </Text>
-    </View>
+
+      <View style={styles.listaNiveles}>
+        {niveles.map((nivel) => {
+          const seleccionado =
+            nivelSeleccionado === nivel.id;
+
+          return (
+            <TouchableOpacity
+              key={nivel.id}
+              style={[
+                styles.tarjetaNivel,
+                seleccionado &&
+                  styles.tarjetaNivelSeleccionada,
+              ]}
+              onPress={() =>
+                setNivelSeleccionado(nivel.id)
+              }
+              activeOpacity={0.8}
+            >
+              <View>
+                <Text
+                  style={[
+                    styles.nombreNivel,
+                    seleccionado &&
+                      styles.textoSeleccionado,
+                  ]}
+                >
+                  {nivel.nombre}
+                </Text>
+
+                <Text
+                  style={[
+                    styles.descripcionNivel,
+                    seleccionado &&
+                      styles.descripcionSeleccionada,
+                  ]}
+                >
+                  {nivel.descripcion}
+                </Text>
+              </View>
+
+              <View
+                style={[
+                  styles.radio,
+                  seleccionado &&
+                    styles.radioSeleccionado,
+                ]}
+              >
+                {seleccionado && (
+                  <View style={styles.radioInterior} />
+                )}
+              </View>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      <TouchableOpacity
+        style={[
+          styles.botonComenzar,
+          !puedeComenzar &&
+            styles.botonDeshabilitado,
+        ]}
+        onPress={comenzarPartida}
+        disabled={!puedeComenzar}
+        activeOpacity={0.8}
+      >
+        <Text
+          style={[
+            styles.textoBoton,
+            !puedeComenzar &&
+              styles.textoBotonDeshabilitado,
+          ]}
+        >
+          COMENZAR PARTIDA
+        </Text>
+      </TouchableOpacity>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F2',
-    padding: 24,
+    backgroundColor: colors.gray50,
   },
 
-  titulo: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#1F3864',
-    marginBottom: 20,
+  contenido: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+
+  encabezado: {
+    marginBottom: 26,
   },
 
   saludo: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#2E75B6',
-    marginBottom: 12,
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: colors.primary,
   },
 
-  texto: {
+  descripcion: {
+    fontSize: 15,
+    color: colors.gray500,
+    marginTop: 6,
+  },
+
+  tituloSeccion: {
+    fontSize: 19,
+    fontWeight: '700',
+    color: colors.gray900,
+    marginBottom: 14,
+  },
+
+  gridCategorias: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 28,
+  },
+
+  tarjetaCategoria: {
+    width: '48%',
+    minHeight: 130,
+    backgroundColor: colors.white,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: colors.gray100,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+    padding: 12,
+
+    shadowColor: colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+
+    elevation: 2,
+  },
+
+  tarjetaCategoriaSeleccionada: {
+    backgroundColor: colors.primary,
+    borderColor: colors.secondary,
+  },
+
+  iconoCategoria: {
+    fontSize: 35,
+    marginBottom: 8,
+  },
+
+  nombreCategoria: {
     fontSize: 16,
-    color: '#334155',
+    fontWeight: '700',
+    color: colors.primary,
+  },
+
+  textoSeleccionado: {
+    color: colors.white,
+  },
+
+  marcaSeleccion: {
+    color: '#BFE1FF',
+    fontSize: 11,
+    marginTop: 7,
+    fontWeight: '600',
+  },
+
+  listaNiveles: {
+    marginBottom: 28,
+  },
+
+  tarjetaNivel: {
+    backgroundColor: colors.white,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: colors.gray100,
+    paddingVertical: 15,
+    paddingHorizontal: 16,
+    marginBottom: 10,
+
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+
+  tarjetaNivelSeleccionada: {
+    backgroundColor: colors.secondary,
+    borderColor: colors.primary,
+  },
+
+  nombreNivel: {
+    color: colors.primary,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
+  descripcionNivel: {
+    color: colors.gray500,
+    fontSize: 13,
+    marginTop: 3,
+  },
+
+  descripcionSeleccionada: {
+    color: '#DCEBFA',
+  },
+
+  radio: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: colors.gray300,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  radioSeleccionado: {
+    borderColor: colors.white,
+  },
+
+  radioInterior: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: colors.white,
+  },
+
+  botonComenzar: {
+    backgroundColor: colors.secondary,
+    borderRadius: 14,
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+
+  botonDeshabilitado: {
+    backgroundColor: colors.gray300,
+  },
+
+  textoBoton: {
+    color: colors.white,
+    fontSize: 16,
+    fontWeight: 'bold',
+    letterSpacing: 0.8,
+  },
+
+  textoBotonDeshabilitado: {
+    color: colors.gray500,
   },
 });
